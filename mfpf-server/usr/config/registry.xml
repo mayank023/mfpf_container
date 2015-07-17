@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Licensed Materials - Property of IBM 5725-I43 (C) Copyright IBM Corp. 
+	2015, 2015. All Rights Reserved. US Government Users Restricted Rights - 
+	Use, duplication or disclosure restricted by GSA ADP Schedule Contract with 
+	IBM Corp. -->
+<server>
+
+	<!-- You can overwrite this file in your docker container either to extend 
+		the basic registry, or to replace the basic registry by an ldap registry -->
+	<basicRegistry id="worklight" realm="worklightRealm">
+		<!-- User for JMX operations - Used by the MFP Server -->
+		<user name="${env.MFPF_ADMIN_USER}" password="${env.MFPF_ADMIN_PASSWORD}" />
+
+		<user name="admin" password="admin" />
+
+		<group name="${env.MFPF_ADMIN_GROUP}">
+			<member name="admin" />
+		</group>
+
+		<group name="${env.MFPF_DEPLOYER_GROUP}">
+			<member name="admin" />
+		</group>
+
+		<group name="${env.MFPF_MONITOR_GROUP}">
+			<member name="admin" />
+		</group>
+
+		<group name="${env.MFPF_OPERATOR_GROUP}">
+			<member name="admin" />
+		</group>
+
+	</basicRegistry>
+
+</server>    

@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Licensed Materials - Property of IBM 5725-I43 (C) Copyright IBM Corp.
+  2015, 2015. All Rights Reserved. US Government Users Restricted Rights -
+  Use, duplication or disclosure restricted by GSA ADP Schedule Contract with
+  IBM Corp. -->
+<server description="new server">
+
+    <!-- Enable features -->
+    <featureManager>
+        <feature>jsp-2.2</feature>
+        <!-- Begin of features added by IBM Worklight <installWorklightAdmin> ant task for context root '/wladmin'. -->
+        <!-- The following lines will be removed when the application is uninstalled -->
+        <feature>jdbc-4.0</feature>
+        <feature>appSecurity-2.0</feature>
+        <feature>restConnector-1.0</feature>
+        <!-- End of features added by IBM Worklight <installWorklightAdmin> ant task for context root '/wladmin'. -->
+        <!-- Data proxy features -->
+        <feature>jaxrs-1.1</feature>
+        <feature>jndi-1.0</feature>
+        <feature>usr:OAuthTai-1.0</feature>
+        <!-- Data proxy features --> 
+      
+    </featureManager>
+
+    <!-- To access this server from a remote client add a host attribute to the following element, e.g. host="*" -->
+    <httpEndpoint id="defaultHttpEndpoint"
+                  httpPort="${env.MFPF_SERVER_HTTPPORT}"
+                  httpsPort="${env.MFPF_SERVER_HTTPSPORT}" host="*" >
+
+        <!-- Option soReuseAddr added by IBM Worklight <installWorklightAdmin> ant task for context root '/wladmin'. -->
+        <tcpOptions soReuseAddr="true"/>
+
+    </httpEndpoint>
+    
+    <administrator-role>
+        <!--    Worklight JMX User.
+        [Added by IBM Worklight <installWorklightAdmin> Ant task for context root '/wladmin'] 
+        -->
+        <user>${env.MFPF_ADMIN_USER}</user>
+
+    </administrator-role>
+    <!--    Worklight JNDI property for JMX connection.
+        [Added by IBM Worklight <installWorklightAdmin> Ant task for context root '/wladmin'] 
+    -->
+    <jndiEntry jndiName="ibm.worklight.admin.jmx.host" value="${env.IP_ADDRESS}"/>
+    <!--    Worklight JNDI property for JMX connection.
+        [Added by IBM Worklight <installWorklightAdmin> Ant task for context root '/wladmin'] 
+    -->
+    <jndiEntry jndiName="ibm.worklight.admin.serverid" value="${env.HOSTNAME}"/>
+    
+    <jndiEntry jndiName="ibm.worklight.admin.jmx.port" value="${env.MFPF_SERVER_HTTPSPORT}"/>
+    <!--    Worklight JNDI property for JMX connection.
+        [Added by IBM Worklight <installWorklightAdmin> Ant task for context root '/wladmin'] 
+    -->
+    <jndiEntry jndiName="ibm.worklight.admin.jmx.user" value="${env.MFPF_ADMIN_USER}"/>
+    <!--    Worklight JNDI property for JMX connection.
+        [Added by IBM Worklight <installWorklightAdmin> Ant task for context root '/wladmin'] 
+    -->
+    <jndiEntry jndiName="ibm.worklight.admin.jmx.pwd" value="${env.MFPF_ADMIN_PASSWORD}"/>
+    <!--    Worklight JNDI property for JMX connection.
+        [Added by IBM Worklight <installWorklightAdmin> Ant task for context root '/wladmin'] 
+    -->
+    <jndiEntry jndiName="ibm.worklight.topology.platform" value="Liberty"/>
+    <!--    Worklight JNDI property for JMX connection.
+        [Added by IBM Worklight <installWorklightAdmin> Ant task for context root '/wladmin'] 
+    -->
+    
+    <jndiEntry jndiName="ibm.worklight.topology.clustermode" value="${env.MFPF_CLUSTER_MODE}"/>
+    
+    <!--    WebContainer statement.
+        [Added by IBM Worklight <installWorklightAdmin> Ant task for context root '/wladmin'] 
+    -->
+    <webContainer invokeFlushAfterService="false" deferServletLoad="false"/>
+
+    <!-- Element <executor> added by IBM Worklight <installWorklightAdmin> ant task for id 'wladmin'. -->
+    <executor id="default" name="LargeThreadPool"
+              coreThreads="200" maxThreads="400" keepAlive="60s"
+              stealPolicy="STRICT" rejectedWorkPolicy="CALLER_RUNS"/>
+
+
+    <!-- Begin of configuration added by IBM Worklight <installWorklightAdmin> ant task for context root '/wladmin'. -->
+
+    <!-- Declare the Worklight Administration Service application. -->
+    <application id="${env.MFPF_ADMIN_ROOT}" name="${env.MFPF_ADMIN_ROOT}" location="worklightadmin.war" type="war">
+        <application-bnd>
+            <security-role name="worklightadmin">
+                <group name="${env.MFPF_ADMIN_GROUP}"/>
+            </security-role>
+            
+            <security-role name="worklightdeployer">
+                <group name="${env.MFPF_DEPLOYER_GROUP}"/>
+            </security-role>
+            
+            <security-role name="worklightmonitor">
+                <group name="${env.MFPF_MONITOR_GROUP}"/>
+            </security-role>
+            
+            <security-role name="worklightoperator">
+                <group name="${env.MFPF_OPERATOR_GROUP}"/>
+            </security-role>
+        </application-bnd>
+
+        <classloader delegation="parentLast">
+            <commonLibrary id="worklightlib_wladmin">
+            	<fileset dir="${wlp.install.dir}/lib" includes="com.ibm.ws.crypto.passwordutil*.jar"/>
+            </commonLibrary>
+        </classloader>
+    </application>
+
+    <!-- Declare the jar files for DB2 access through JDBC. -->
+    <library id="wladmin/DB2Lib">
+        <fileset dir="${shared.resource.dir}/lib" includes="db2jcc4.jar"/>
+    </library>
+
+    <!-- Declare the Worklight Administration Console application. -->
+    <application id="${env.MFPF_CONSOLE_ROOT}" name="${env.MFPF_CONSOLE_ROOT}" location="worklightconsole.war" type="war">
+        <application-bnd>
+            <security-role name="worklightadmin">
+                <group name="${env.MFPF_ADMIN_GROUP}"/>
+            </security-role>
+            
+            <security-role name="worklightdeployer">
+                <group name="${env.MFPF_DEPLOYER_GROUP}"/>
+            </security-role>
+            
+            <security-role name="worklightmonitor">
+                <group name="${env.MFPF_MONITOR_GROUP}"/>
+            </security-role>
+            
+            <security-role name="worklightoperator">
+                <group name="${env.MFPF_OPERATOR_GROUP}"/>
+            </security-role>
+        </application-bnd>
+
+    </application>
+
+    <!-- Declare the JNDI properties for the Worklight Administration Console. -->
+    <jndiEntry jndiName="${env.MFPF_CONSOLE_ROOT}/ibm.worklight.admin.endpoint" value="*://*:*/${env.MFPF_ADMIN_ROOT}"/>
+    
+    <!-- End of configuration added by IBM Worklight <installWorklightAdmin> ant task for context root '/wladmin'. -->
+    
+    <!-- OAuth TAI For Data Proxy -->
+    <usr_OAuthTAI cacheSize="1000" id="myOAuthTAI">
+        <securityConstraint httpMethods="All" securedURLs="/${env.MFPF_DATAPROXY_ROOT}/*" scope="cloudant"/>
+    </usr_OAuthTAI>
+    <!-- OAuth TAI For Data Proxy -->
+
+    <webApplication contextRoot="${env.MFPF_DATAPROXY_ROOT}" id="imf-data-proxy" location="imf-data-proxy.war" name="imf-data-proxy">
+        <application-bnd>
+            <security-role name="TAIUserRole">
+                <special-subject type="ALL_AUTHENTICATED_USERS" />
+            </security-role>
+        </application-bnd>
+        <classloader delegation="parentLast">
+            <commonLibrary>
+                <fileset dir="${wlp.install.dir}/lib" includes="com.ibm.ws.crypto.passwordutil*.jar"/>
+            </commonLibrary>
+        </classloader>
+    </webApplication>
+    
+    <logging maxFiles="${env.MAX_LOG_FILES}" traceSpecification="${env.TRACE_LEVEL}" maxFileSize="${env.MAX_LOG_FILE_SIZE}" />
+    <webAppSecurity ssoUseDomainFromURL="true" />
+    <ltpa keysFileName="${server.output.dir}/resources/security/ltpa.keys" />
+         
+</server>
