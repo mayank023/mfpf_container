@@ -1,0 +1,71 @@
+#!/bin/bash
+# (C) Copyright IBM Corporation 2014.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+if [ "$(ls -A /root/sshkey/)" ]
+	then
+	for file in /root/sshkey/*; do        
+        chmod 600 $file
+        cat $file >> /root/.ssh/authorized_keys
+	done
+fi
+
+mfpfpropsfromenv=/opt/ibm/wlp/usr/servers/worklight/configDropins/overrides/mfpfpropsfromenv.xml
+if [ -f "$mfpfpropsfromenv" ]
+then
+	rm $mfpfpropsfromenv
+fi
+
+if [ ! -z $mfpfproperties ]
+then
+	python /opt/ibm/wlp/bin/wlpropsparser.py $mfpfproperties >> $mfpfpropsfromenv
+fi
+
+envfile=/opt/ibm/wlp/usr/servers/worklight/server.env
+
+if [ ! -z $ANALYTICS_TRACE_LEVEL ]
+then
+  echo ANALYTICS_TRACE_LEVEL=${ANALYTICS_TRACE_LEVEL//"~"/"="} >> $envfile  
+fi
+
+if [ ! -z $ANALYTICS_MAX_LOG_FILES ]
+then
+  echo ANALYTICS_MAX_LOG_FILES=$ANALYTICS_MAX_LOG_FILES >> $envfile  
+fi
+
+if [ ! -z $ANALYTICS_MAX_LOG_FILE_SIZE ]
+then
+  echo ANALYTICS_MAX_LOG_FILE_SIZE=$ANALYTICS_MAX_LOG_FILE_SIZE >> $envfile  
+fi
+
+# if environment variables for the analytics are provided as environment parameters 
+if [ -n "$ANALYTICS_HTTPPORT" ]
+then
+  sed -i "/ANALYTICS_HTTPPORT=.*/c\ANALYTICS_HTTPPORT=$ANALYTICS_HTTPPORT" $envfile
+fi
+
+if [ -n "$ANALYTICS_HTTPSPORT" ]
+then
+  sed -i "/ANALYTICS_HTTPSPORT=.*/c\ANALYTICS_HTTPSPORT=$ANALYTICS_HTTPSPORT" $envfile
+fi
+
+if [ -n "$ANALYTICS_ADMIN_GROUP" ]
+then
+  sed -i "/ANALYTICS_ADMIN_GROUP=.*/c\ANALYTICS_ADMIN_GROUP=$ANALYTICS_ADMIN_GROUP" $envfile
+fi
+
+if [ ! -z "$ANALYTICS_DATA_DIRECTORY" ]
+then
+  echo ANALYTICS_DATA_DIRECTORY=$ANALYTICS_DATA_DIRECTORY >> $envfile  
+fi

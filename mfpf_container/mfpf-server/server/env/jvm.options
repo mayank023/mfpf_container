@@ -1,0 +1,3 @@
+# Added by the IBM Worklight <installWorklightAdmin> task for id 'wladmin'
+-Dcom.ibm.ws.jmx.connector.client.rest.readTimeout=180000
+

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Licensed Materials - Property of IBM 5725-I43 (C) Copyright IBM Corp.
+  2015, 2015. All Rights Reserved. US Government Users Restricted Rights -
+  Use, duplication or disclosure restricted by GSA ADP Schedule Contract with
+  IBM Corp. 
+-->
+<project name="MigrateWarFile" default="migrate" basedir=".">
+  <target name="migrate">
+    <taskdef resource="com/worklight/ant/defaults.properties">
+      <classpath>
+        <pathelement location="../../mfpf-libs/worklight-ant-deployer.jar" />
+      </classpath>
+    </taskdef>
+    <copy file="${warfile}" tofile="${warfile}.copy" overwrite="true"/>
+    <migrate sourceWarFile="${warfile}.copy" destWarFile="${warfile}"/>
+    <delete file="${warfile}.copy" failonerror="false"/>
+  </target>
+</project>

@@ -1,0 +1,153 @@
+#!/bin/bash
+# (C) Copyright IBM Corporation 2014.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+if [ "$(ls -A /root/sshkey/)" ]
+	then
+	for file in /root/sshkey/*; do        
+        chmod 600 $file
+        cat $file >> /root/.ssh/authorized_keys
+	done
+fi
+
+mfpfpropsfromenv=/opt/ibm/wlp/usr/servers/worklight/configDropins/overrides/mfpfpropsfromenv.xml
+if [ -f "$mfpfpropsfromenv" ]
+then
+	rm $mfpfpropsfromenv
+fi
+
+if [ ! -z $mfpfproperties ]
+then
+	python /opt/ibm/wlp/bin/wlpropsparser.py $mfpfproperties >> $mfpfpropsfromenv
+fi
+
+# wait for network stack initialization
+while ! ping -c1 ace.ng.bluemix.net &>/dev/null; do :; done
+
+
+if [ "$MFPF_CLUSTER_MODE" = "Farm" ]
+then
+	IP_ADDRESS=$(echo $(hostname -I))
+	HOSTNAME=`hostname`
+else
+	IP_ADDRESS='localhost'
+	HOSTNAME='localhost'
+fi
+
+envfile=/opt/ibm/wlp/usr/servers/worklight/server.env
+
+if grep -q 'IP_ADDRESS=' $envfile
+then
+	sed -i "/IP_ADDRESS=.*/c\IP_ADDRESS=$IP_ADDRESS" $envfile
+else
+	echo IP_ADDRESS=$IP_ADDRESS >> $envfile
+fi
+
+if grep -q 'HOSTNAME=' $envfile
+then
+	sed -i "/HOSTNAME=.*/c\HOSTNAME=$HOSTNAME" $envfile
+else
+	echo HOSTNAME=$HOSTNAME >> $envfile
+fi
+
+if [ ! -z $TRACE_LEVEL ]
+then
+  echo TRACE_LEVEL=${TRACE_LEVEL//"~"/"="} >> $envfile  
+fi
+
+if [ ! -z $MAX_LOG_FILES ]
+then
+  echo MAX_LOG_FILES=$MAX_LOG_FILES >> $envfile  
+fi
+
+if [ ! -z $MAX_LOG_FILE_SIZE ]
+then
+  echo MAX_LOG_FILE_SIZE=$MAX_LOG_FILE_SIZE >> $envfile  
+fi
+
+# if environment variables for the server are provided as environment parameters 
+if [ -n "$MFPF_SERVER_HTTPPORT" ]
+then
+	sed -i "/MFPF_SERVER_HTTPPORT=.*/c\MFPF_SERVER_HTTPPORT=$MFPF_SERVER_HTTPPORT" $envfile
+fi
+
+if [ -n "$MFPF_SERVER_HTTPSPORT" ]
+then
+  sed -i "/MFPF_SERVER_HTTPSPORT=.*/c\MFPF_SERVER_HTTPSPORT=$MFPF_SERVER_HTTPSPORT" $envfile
+fi
+
+if [ -n "$MFPF_CLUSTER_MODE" ]
+then
+  sed -i "/MFPF_CLUSTER_MODE=.*/c\MFPF_CLUSTER_MODE=$MFPF_CLUSTER_MODE" $envfile
+fi
+
+if [ -n "$MFPF_ADMIN_ROOT" ]
+then
+  sed -i "/MFPF_ADMIN_ROOT=.*/c\MFPF_ADMIN_ROOT=$MFPF_ADMIN_ROOT" $envfile
+fi
+
+if [ -n "$MFPF_CONSOLE_ROOT" ]
+then
+  sed -i "/MFPF_CONSOLE_ROOT=.*/c\MFPF_CONSOLE_ROOT=$MFPF_CONSOLE_ROOT" $envfile
+fi
+
+if [ -n "$MFPF_DATAPROXY_ROOT" ]
+then
+  sed -i "/MFPF_DATAPROXY_ROOT=.*/c\MFPF_DATAPROXY_ROOT=$MFPF_DATAPROXY_ROOT" $envfile
+fi
+
+if [ -n "$MFPF_ADMIN_GROUP" ]
+then
+  sed -i "/MFPF_ADMIN_GROUP=.*/c\MFPF_ADMIN_GROUP=$MFPF_ADMIN_GROUP" $envfile
+fi
+
+if [ -n "$MFPF_DEPLOYER_GROUP" ]
+then
+  sed -i "/MFPF_DEPLOYER_GROUP=.*/c\MFPF_DEPLOYER_GROUP=$MFPF_DEPLOYER_GROUP" $envfile
+fi
+
+if [ -n "$MFPF_MONITOR_GROUP" ]
+then
+  sed -i "/MFPF_MONITOR_GROUP=.*/c\MFPF_MONITOR_GROUP=$MFPF_MONITOR_GROUP" $envfile
+fi
+
+if [ -n "$MFPF_OPERATOR_GROUP" ]
+then
+  sed -i "/MFPF_OPERATOR_GROUP=.*/c\MFPF_OPERATOR_GROUP=$MFPF_OPERATOR_GROUP" $envfile
+fi
+
+if [ -n "$MFPF_ADMIN_USER" ]
+then
+  sed -i "/MFPF_ADMIN_USER=.*/c\MFPF_ADMIN_USER=$MFPF_ADMIN_USER" $envfile
+fi
+
+if [ -n "$MFPF_ADMIN_PASSWORD" ]
+then
+  sed -i "/MFPF_ADMIN_PASSWORD=.*/c\MFPF_ADMIN_PASSWORD=$MFPF_ADMIN_PASSWORD" $envfile
+fi
+
+if [ -n "$publicKeyServerUrl" ]
+then
+  sed -i "/publicKeyServerUrl=.*/c\publicKeyServerUrl=$publicKeyServerUrl" $envfile
+fi
+
+#If DataCache is enabled, install wxs as a feature
+wxsjar=$(ls /opt/ibm/wlp | grep wxs.*\.jar)
+if [ -f "/opt/ibm/wlp/$wxsjar" ]
+then
+	if [ ! -d "/opt/ibm/wlp/wxs" ]
+	then
+		/opt/ibm/java/jre/bin/java -jar /opt/ibm/wlp/$wxsjar -acceptLicense /opt/ibm/wlp/
+	fi
+fi

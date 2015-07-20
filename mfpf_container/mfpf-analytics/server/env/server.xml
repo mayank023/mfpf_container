@@ -1,0 +1,38 @@
+<!-- Licensed Materials - Property of IBM 5725-I43 (C) Copyright IBM Corp.
+  2015, 2015. All Rights Reserved. US Government Users Restricted Rights -
+  Use, duplication or disclosure restricted by GSA ADP Schedule Contract with
+  IBM Corp. -->
+
+<server description="worklight">
+
+	<!-- Enable features -->
+	<featureManager>
+		<feature>jsp-2.2</feature>
+		<feature>servlet-3.0</feature>
+		<feature>appSecurity-1.0</feature>
+	</featureManager>
+	
+	<application location="analytics.ear"
+		name="MobileFirst Platform Foundation Analytics" type="ear">
+		<application-bnd>
+			<security-role name="worklightadmin">
+				<group name="${env.ANALYTICS_ADMIN_GROUP}" />
+			</security-role>
+		</application-bnd>
+	</application>
+
+	<httpEndpoint host="*" httpPort="${env.ANALYTICS_HTTPPORT}" httpsPort="${env.ANALYTICS_HTTPSPORT}" id="defaultHttpEndpoint" />
+	
+	<jndiEntry jndiName="analytics/datapath" value="${env.ANALYTICS_DATA_DIRECTORY}" />
+
+	<webContainer extractHostHeaderPort="true"
+		trustHostHeaderPort="true" />
+
+	<httpDispatcher enableWelcomePage="false" />
+
+	<logging maxFiles="${env.ANALYTICS_MAX_LOG_FILES}" traceSpecification="${env.ANALYTICS_TRACE_LEVEL}" maxFileSize="${env.ANALYTICS_MAX_LOG_FILE_SIZE}" />
+	<webAppSecurity ssoUseDomainFromURL="true" />
+    <ltpa keysFileName="${server.output.dir}/resources/security/ltpa.keys" />
+	
+
+</server>
